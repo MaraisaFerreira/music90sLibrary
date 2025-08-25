@@ -1,5 +1,6 @@
 package com.study.mf.controllers;
 
+import com.study.mf.data.dto.MusicDTO;
 import com.study.mf.model.Music;
 import com.study.mf.services.MusicService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,23 +17,23 @@ public class MusicController {
     private MusicService service;
 
     @GetMapping
-    public ResponseEntity<List<Music>> findAll() {
+    public ResponseEntity<List<MusicDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Music> findById(@PathVariable Long id) {
+    public ResponseEntity<MusicDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Music> create(@RequestBody Music music) {
+    public ResponseEntity<MusicDTO> create(@RequestBody Music music) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(service.create(music));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Music> updated(
+    public ResponseEntity<MusicDTO> updated(
             @PathVariable Long id,
             @RequestBody Music music
     ) {
