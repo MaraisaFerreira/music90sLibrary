@@ -1,5 +1,6 @@
 package com.study.mf.services;
 
+import com.study.mf.exceptions.CustomNotFoundException;
 import com.study.mf.model.Music;
 import com.study.mf.repository.MusicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class MusicService {
     }
 
     public Music findById(Long id){
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+        return repository.findById(id).orElseThrow(() -> new CustomNotFoundException("Not Found"));
     }
 
     public Music create(Music music){
@@ -27,7 +28,7 @@ public class MusicService {
     }
 
     public Music update(Long id, Music music){
-        Music stored = repository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+        Music stored = repository.findById(id).orElseThrow(() -> new CustomNotFoundException("Not Found"));
         stored.setName(music.getName());
         stored.setArtist(music.getArtist());
         stored.setYear(music.getYear());
@@ -36,7 +37,7 @@ public class MusicService {
     }
 
     public void delete(Long id){
-        Music music = repository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+        Music music = repository.findById(id).orElseThrow(() -> new CustomNotFoundException("Not Found"));
         repository.delete(music);
     }
 }
