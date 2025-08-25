@@ -14,25 +14,29 @@ public class MusicService {
     private MusicRepository repository;
 
     public List<Music> findAll(){
-        return new ArrayList<>(List.of(
-                new Music(null,"Viva Forever", "Spice Girls", 1998),
-                new Music(null,"Stop", "Spice Girls", 1998)
-        ));
+        return repository.findAll();
+
     }
 
     public Music findById(Long id){
-        return new Music(id, "Malandragem", "Cassia Eller", 1994);
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
     }
 
     public Music create(Music music){
-        music.setId(2L);
-        return music;
+        return repository.save(music);
     }
 
     public Music update(Long id, Music music){
-        music.setName(music.getName() + " updated");
-        return music;
+        Music stored = repository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+        stored.setName(music.getName());
+        stored.setArtist(music.getArtist());
+        stored.setYear(music.getYear());
+        repository.save(stored);
+        return stored;
     }
 
-    public void delete(Long id){}
+    public void delete(Long id){
+        Music music = repository.findById(id).orElseThrow(() -> new RuntimeException("Not Found"));
+        repository.delete(music);
+    }
 }
