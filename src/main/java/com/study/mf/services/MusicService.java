@@ -1,31 +1,43 @@
 package com.study.mf.services;
 
+import com.study.mf.controllers.MusicController;
 import com.study.mf.data.dto.MusicDTO;
 import com.study.mf.exceptions.CustomBadRequestException;
 import com.study.mf.exceptions.CustomNotFoundException;
 import com.study.mf.model.Music;
 import com.study.mf.repository.MusicRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import static com.study.mf.mappers.ObjectsMapper.parseObject;
-import static com.study.mf.mappers.ObjectsMapper.parseListObject;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.study.mf.mappers.ObjectsMapper.parseListObject;
+import static com.study.mf.mappers.ObjectsMapper.parseObject;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class MusicService {
-    @Autowired
-    private MusicRepository repository;
+
+    private final MusicRepository repository;
+
+    public MusicService(MusicRepository repository) {
+        this.repository = repository;
+    }
 
     public List<MusicDTO> findAll(){
-        return parseListObject(repository.findAll(), MusicDTO.class);
+        List<MusicDTO> musicDTOS = parseListObject(repository.findAll(), MusicDTO.class);
+        for (MusicDTO dto : musicDTOS) {
+            addHateoasLinks(dto);
+        }
+        return musicDTOS;
     }
 
     public MusicDTO findById(Long id){
-        return parseObject(repository.findById(id).orElseThrow(
+        MusicDTO musicDTO = parseObject(repository.findById(id).orElseThrow(
             () -> new CustomNotFoundException("Not Found")), MusicDTO.class);
+        addHateoasLinks(musicDTO);
+        return musicDTO;
     }
 
     public MusicDTO create(MusicDTO musicDTO){
@@ -34,7 +46,9 @@ public class MusicService {
         }
 
         Music music = repository.save(parseObject(musicDTO, Music.class));
-        return parseObject(music, MusicDTO.class);
+        MusicDTO dto = parseObject(music, MusicDTO.class);
+        addHateoasLinks(dto);
+        return dto;
     }
 
     @Transactional
@@ -50,11 +64,21 @@ public class MusicService {
         stored.setArtist(musicDTO.getArtist());
         stored.setYear(musicDTO.getYear());
 
-        return parseObject(stored, MusicDTO.class);
+        MusicDTO dto = parseObject(stored, MusicDTO.class);
+        addHateoasLinks(dto);
+        return dto;
     }
 
     public void delete(Long id){
         Music music = repository.findById(id).orElseThrow(() -> new CustomNotFoundException("Not Found"));
         repository.delete(music);
+    }
+
+    private void addHateoasLinks(MusicDTO dto) {
+        dto.add(linkTo(methodOn(MusicController.class).findById(dto.getId())).withSelfRel().withType("GET"));
+        dto.add(linkTo(methodOn(MusicController.class).findAll()).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(MusicController.class).create(dto)).withRel("create").withType("POST"));
+        dto.add(linkTo(methodOn(MusicController.class).updated(dto.getId(), dto)).withRel("update").withType("PUT"));
+        dto.add(linkTo(methodOn(MusicController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));
     }
 }

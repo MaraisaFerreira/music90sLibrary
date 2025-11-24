@@ -1,8 +1,10 @@
 package com.study.mf.data.dto;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import java.util.Objects;
 
-public class MusicDTO {
+public class MusicDTO extends RepresentationModel<MusicDTO> {
 
     private Long id;
     private String name;
