@@ -1,9 +1,11 @@
 package com.study.mf.services;
 
 import com.study.mf.data.dto.MusicDTO;
+import com.study.mf.exceptions.CustomBadRequestException;
 import com.study.mf.exceptions.CustomNotFoundException;
 import com.study.mf.model.Music;
 import com.study.mf.repository.MusicRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import static com.study.mf.mappers.ObjectsMapper.parseObject;
@@ -22,19 +24,32 @@ public class MusicService {
     }
 
     public MusicDTO findById(Long id){
-        return parseObject(repository.findById(id).orElseThrow(() -> new CustomNotFoundException("Not Found")), MusicDTO.class);
+        return parseObject(repository.findById(id).orElseThrow(
+            () -> new CustomNotFoundException("Not Found")), MusicDTO.class);
     }
 
-    public MusicDTO create(Music music){
-        return parseObject(repository.save(music), MusicDTO.class);
+    public MusicDTO create(MusicDTO musicDTO){
+        if (musicDTO.getName() == null || musicDTO.getYear() == null) {
+            throw new CustomBadRequestException("Fields mame and year cannot be null...");
+        }
+
+        Music music = repository.save(parseObject(musicDTO, Music.class));
+        return parseObject(music, MusicDTO.class);
     }
 
-    public MusicDTO update(Long id, Music music){
-        Music stored = repository.findById(id).orElseThrow(() -> new CustomNotFoundException("Not Found"));
-        stored.setName(music.getName());
-        stored.setArtist(music.getArtist());
-        stored.setYear(music.getYear());
-        repository.save(stored);
+    @Transactional
+    public MusicDTO update(Long id, MusicDTO musicDTO){
+        Music stored = repository.findById(id).orElseThrow(
+            () -> new CustomNotFoundException("Not Found"));
+
+        if (musicDTO.getName() == null || musicDTO.getYear() == null) {
+            throw new CustomBadRequestException("Fields mame and year cannot be null...");
+        }
+
+        stored.setName(musicDTO.getName());
+        stored.setArtist(musicDTO.getArtist());
+        stored.setYear(musicDTO.getYear());
+
         return parseObject(stored, MusicDTO.class);
     }
 

@@ -56,7 +56,7 @@ public class MusicController {
             MediaType.APPLICATION_YAML_VALUE
         }
     )
-    public ResponseEntity<MusicDTO> create(@RequestBody Music music) {
+    public ResponseEntity<MusicDTO> create(@RequestBody MusicDTO music) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(service.create(music));
     }
@@ -76,9 +76,9 @@ public class MusicController {
     )
     public ResponseEntity<MusicDTO> updated(
             @PathVariable Long id,
-            @RequestBody Music music
+            @RequestBody MusicDTO musicDTO
     ) {
-        return ResponseEntity.ok(service.update(id, music));
+        return ResponseEntity.ok(service.update(id, musicDTO));
     }
 
     @DeleteMapping("/{id}")
