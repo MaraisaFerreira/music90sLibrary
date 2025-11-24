@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 
 import java.time.Instant;
 
@@ -11,15 +13,52 @@ import java.time.Instant;
 public class CustomExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseException> genericErrors(Exception ex){
-        return ResponseEntity.internalServerError().body(new ResponseException(
+    public ResponseEntity<ExceptionResponseDto> genericErrors(Exception ex, WebRequest request) {
+        String method = null;
+        if (request instanceof ServletWebRequest) {
+            method = ((ServletWebRequest) request).getHttpMethod().name();
+        }
+
+        return ResponseEntity.internalServerError().body(
+            new ExceptionResponseDto(
                 Instant.now().toEpochMilli(),
-                ex.getMessage()
-        ));
+                ex.getMessage(),
+                method,
+                request.getDescription(false)
+            ));
     }
 
     @ExceptionHandler(CustomNotFoundException.class)
-    public ResponseEntity<ResponseException> resourceNotFound(CustomNotFoundException ex){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseException(Instant.now().toEpochMilli(), ex.getMessage()));
+    public ResponseEntity<ExceptionResponseDto> resourceNotFound(CustomNotFoundException ex,
+                                                                 WebRequest request) {
+        String method = null;
+        if (request instanceof ServletWebRequest) {
+            method = ((ServletWebRequest) request).getHttpMethod().name();
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            new ExceptionResponseDto(
+                Instant.now().toEpochMilli(),
+                ex.getMessage(),
+                method,
+                request.getDescription(false)
+            ));
+    }
+
+    @ExceptionHandler(CustomBadRequestException.class)
+    public ResponseEntity<ExceptionResponseDto> badRequestHandler(CustomBadRequestException ex,
+                                                                  WebRequest request) {
+        String method = null;
+        if (request instanceof ServletWebRequest) {
+            method = ((ServletWebRequest) request).getHttpMethod().name();
+        }
+
+        return ResponseEntity.badRequest().body(
+            new ExceptionResponseDto(
+                Instant.now().toEpochMilli(),
+                ex.getMessage(),
+                method,
+                request.getDescription(false)
+            ));
     }
 }
