@@ -37,6 +37,7 @@ public class MusicService {
         Page<Music> musicsPage = repository.findAll(pageable);
         Page<MusicDTO> musicDTOPage = musicsPage.map(music -> {
             MusicDTO dto = parseObject(music, MusicDTO.class);
+            addHateoasLinks(dto);
             return dto;
         });
 

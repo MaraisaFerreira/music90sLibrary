@@ -39,6 +39,16 @@ public class MusicController {
         @RequestParam(name = "direction", defaultValue = "asc") String direction,
         @RequestParam(name = "order_by", defaultValue = "name") String orderBy
     ) {
+        if (page == null) {
+            page = 0;
+        }
+        if (size == null) {
+            size = 10;
+        }
+        if (orderBy == null) {
+            orderBy = "name";
+        }
+
         Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ?
             Sort.Direction.DESC : Sort.Direction.ASC;
 
