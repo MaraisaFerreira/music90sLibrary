@@ -3,13 +3,12 @@ package com.study.mf.controllers;
 import com.study.mf.data.dto.StorageResponseDTO;
 import com.study.mf.services.StorageService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class StorageController {
         this.service = service;
     }
 
-    @GetMapping("/uploadFile")
+    @PostMapping("/uploadFile")
     public ResponseEntity<StorageResponseDTO> uploadFile(
         @RequestParam(name = "file") MultipartFile file
     ) {
@@ -40,12 +39,17 @@ public class StorageController {
         ));
     }
 
-    @GetMapping("/uploadFiles")
+    @PostMapping("/uploadFiles")
     public ResponseEntity<List<StorageResponseDTO>> uploadFiles(
         @RequestParam(name = "files") MultipartFile[] files
     ) {
         List<StorageResponseDTO> dtos = Arrays.stream(files).map(
-            file -> uploadFile(file).getBody()).toList();
+            file -> {
+                String fileName = service.uploadFile(file);
+                Long fileSize = file.getSize();
+                String fileType = file.getContentType();
+                return new StorageResponseDTO(fileName, fileSize, fileType);
+            }).toList();
 
         return ResponseEntity.status(201).body(dtos);
     }
