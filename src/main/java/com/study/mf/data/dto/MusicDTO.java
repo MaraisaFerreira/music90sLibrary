@@ -1,9 +1,15 @@
 package com.study.mf.data.dto;
 
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
+@Relation(collectionRelation = "Musics")
 public class MusicDTO extends RepresentationModel<MusicDTO> {
 
     private Long id;
@@ -72,4 +78,12 @@ public class MusicDTO extends RepresentationModel<MusicDTO> {
                 ", year=" + year +
                 " }";
     }
+
+    public static List<String> getPossibleFields(){
+        return Arrays.stream(MusicDTO.class.getDeclaredFields())
+            .filter(field -> !Modifier.isStatic(field.getModifiers()))
+            .map(field -> field.getName().toLowerCase())
+            .toList();
+    }
+
 }

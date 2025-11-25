@@ -7,6 +7,12 @@ import com.study.mf.exceptions.CustomNotFoundException;
 import com.study.mf.model.Music;
 import com.study.mf.repository.MusicRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,27 +26,35 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class MusicService {
 
     private final MusicRepository repository;
+    private final PagedResourcesAssembler<MusicDTO> assembler;
 
-    public MusicService(MusicRepository repository) {
+    public MusicService(MusicRepository repository, PagedResourcesAssembler<MusicDTO> assembler) {
         this.repository = repository;
+        this.assembler = assembler;
     }
 
-    public List<MusicDTO> findAll(){
-        List<MusicDTO> musicDTOS = parseListObject(repository.findAll(), MusicDTO.class);
-        for (MusicDTO dto : musicDTOS) {
-            addHateoasLinks(dto);
-        }
-        return musicDTOS;
+    public PagedModel<EntityModel<MusicDTO>> findAll(Pageable pageable) {
+        Page<Music> musicsPage = repository.findAll(pageable);
+        Page<MusicDTO> musicDTOPage = musicsPage.map(music -> {
+            MusicDTO dto = parseObject(music, MusicDTO.class);
+            return dto;
+        });
+
+        Link link = linkTo(methodOn(MusicController.class).findAll(
+            null, null, null, null
+        )).withSelfRel().withType("GET");
+
+        return assembler.toModel(musicDTOPage, link);
     }
 
-    public MusicDTO findById(Long id){
+    public MusicDTO findById(Long id) {
         MusicDTO musicDTO = parseObject(repository.findById(id).orElseThrow(
             () -> new CustomNotFoundException("Not Found")), MusicDTO.class);
         addHateoasLinks(musicDTO);
         return musicDTO;
     }
 
-    public MusicDTO create(MusicDTO musicDTO){
+    public MusicDTO create(MusicDTO musicDTO) {
         if (musicDTO.getName() == null || musicDTO.getYear() == null) {
             throw new CustomBadRequestException("Fields mame and year cannot be null...");
         }
@@ -52,7 +66,7 @@ public class MusicService {
     }
 
     @Transactional
-    public MusicDTO update(Long id, MusicDTO musicDTO){
+    public MusicDTO update(Long id, MusicDTO musicDTO) {
         Music stored = repository.findById(id).orElseThrow(
             () -> new CustomNotFoundException("Not Found"));
 
@@ -69,14 +83,14 @@ public class MusicService {
         return dto;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         Music music = repository.findById(id).orElseThrow(() -> new CustomNotFoundException("Not Found"));
         repository.delete(music);
     }
 
     private void addHateoasLinks(MusicDTO dto) {
         dto.add(linkTo(methodOn(MusicController.class).findById(dto.getId())).withSelfRel().withType("GET"));
-        dto.add(linkTo(methodOn(MusicController.class).findAll()).withRel("findAll").withType("GET"));
+        dto.add(linkTo(methodOn(MusicController.class).findAll(0, 10, "asc", "name")).withRel("findAll").withType("GET"));
         dto.add(linkTo(methodOn(MusicController.class).create(dto)).withRel("create").withType("POST"));
         dto.add(linkTo(methodOn(MusicController.class).updated(dto.getId(), dto)).withRel("update").withType("PUT"));
         dto.add(linkTo(methodOn(MusicController.class).delete(dto.getId())).withRel("delete").withType("DELETE"));

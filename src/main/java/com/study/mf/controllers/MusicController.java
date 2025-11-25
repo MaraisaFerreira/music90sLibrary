@@ -4,6 +4,11 @@ import com.study.mf.data.dto.MusicDTO;
 import com.study.mf.model.Music;
 import com.study.mf.services.MusicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +33,25 @@ public class MusicController {
             MediaType.APPLICATION_YAML_VALUE
         }
     )
-    public ResponseEntity<List<MusicDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<PagedModel<EntityModel<MusicDTO>>> findAll(
+        @RequestParam(name = "page", defaultValue = "0") Integer page,
+        @RequestParam(name = "size", defaultValue = "10") Integer size,
+        @RequestParam(name = "direction", defaultValue = "asc") String direction,
+        @RequestParam(name = "order_by", defaultValue = "name") String orderBy
+    ) {
+        Sort.Direction sortDirection = "desc".equalsIgnoreCase(direction) ?
+            Sort.Direction.DESC : Sort.Direction.ASC;
+
+        List<String> possibleFieldsSort = MusicDTO.getPossibleFields();
+        String order = possibleFieldsSort.contains(orderBy.toLowerCase()) ? orderBy.toLowerCase() : "name";
+
+        Pageable pageable = PageRequest.of(
+            page,
+            size,
+            sortDirection,
+            order
+        );
+        return ResponseEntity.ok(service.findAll(pageable));
     }
 
     @GetMapping(
@@ -58,7 +80,7 @@ public class MusicController {
     )
     public ResponseEntity<MusicDTO> create(@RequestBody MusicDTO music) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(service.create(music));
+            .body(service.create(music));
     }
 
     @PutMapping(
@@ -75,8 +97,8 @@ public class MusicController {
         }
     )
     public ResponseEntity<MusicDTO> updated(
-            @PathVariable Long id,
-            @RequestBody MusicDTO musicDTO
+        @PathVariable Long id,
+        @RequestBody MusicDTO musicDTO
     ) {
         return ResponseEntity.ok(service.update(id, musicDTO));
     }
