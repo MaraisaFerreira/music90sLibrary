@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+
 @RestController
 @RequestMapping("/files")
 public class StorageController {
@@ -19,8 +23,8 @@ public class StorageController {
         this.service = service;
     }
 
-    @GetMapping("/upload")
-    public ResponseEntity<StorageResponseDTO> uploadFiles(
+    @GetMapping("/uploadFile")
+    public ResponseEntity<StorageResponseDTO> uploadFile(
         @RequestParam(name = "file") MultipartFile file
     ) {
         if (file == null) {
@@ -35,4 +39,15 @@ public class StorageController {
             file.getContentType()
         ));
     }
+
+    @GetMapping("/uploadFiles")
+    public ResponseEntity<List<StorageResponseDTO>> uploadFiles(
+        @RequestParam(name = "files") MultipartFile[] files
+    ) {
+        List<StorageResponseDTO> dtos = Arrays.stream(files).map(
+            file -> uploadFile(file).getBody()).toList();
+
+        return ResponseEntity.status(201).body(dtos);
+    }
 }
+
