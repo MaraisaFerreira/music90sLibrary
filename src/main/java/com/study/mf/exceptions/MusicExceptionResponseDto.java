@@ -1,6 +1,6 @@
 package com.study.mf.exceptions;
 
-public record ExceptionResponseDto(
+public record MusicExceptionResponseDto(
     Long timestamp,
     String message,
     String method,
