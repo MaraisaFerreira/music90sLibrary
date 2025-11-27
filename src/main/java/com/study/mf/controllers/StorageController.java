@@ -1,6 +1,7 @@
 package com.study.mf.controllers;
 
 import com.study.mf.data.dto.StorageResponseDTO;
+import com.study.mf.exceptions.CustomBadRequestException;
 import com.study.mf.services.StorageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,7 +44,13 @@ public class StorageController {
     public ResponseEntity<List<StorageResponseDTO>> uploadFiles(
         @RequestParam(name = "files") MultipartFile[] files
     ) {
-        List<StorageResponseDTO> dtos = Arrays.stream(files).map(
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                throw new CustomBadRequestException("There is any file to upload....");
+            }
+        }
+
+        List<StorageResponseDTO> storageResponseDTOList = Arrays.stream(files).map(
             file -> {
                 String fileName = service.uploadFile(file);
                 Long fileSize = file.getSize();
@@ -51,7 +58,7 @@ public class StorageController {
                 return new StorageResponseDTO(fileName, fileSize, fileType);
             }).toList();
 
-        return ResponseEntity.status(201).body(dtos);
+        return ResponseEntity.status(201).body(storageResponseDTOList);
     }
 }
 
