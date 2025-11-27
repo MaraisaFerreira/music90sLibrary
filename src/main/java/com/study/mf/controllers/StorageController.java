@@ -33,7 +33,7 @@ public class StorageController {
 
         String fileName = service.uploadFile(file);
 
-        return ResponseEntity.ok(new StorageResponseDTO(
+        return ResponseEntity.status(201).body(new StorageResponseDTO(
             fileName,
             file.getSize(),
             file.getContentType()
