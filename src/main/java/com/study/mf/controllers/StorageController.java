@@ -3,13 +3,16 @@ package com.study.mf.controllers;
 import com.study.mf.data.dto.StorageResponseDTO;
 import com.study.mf.exceptions.CustomBadRequestException;
 import com.study.mf.services.StorageService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,6 +62,25 @@ public class StorageController {
             }).toList();
 
         return ResponseEntity.status(201).body(storageResponseDTOList);
+    }
+
+    @GetMapping("/download/{fileName:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request){
+        Resource resource = service.downloadFile(fileName);
+
+        String contentType = null;
+        try {
+            contentType = request.getServletContext().getMimeType(
+                resource.getFile().getAbsolutePath()
+            );
+        } catch (IOException e) {
+            contentType = "application/octet-stream";
+        }
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(contentType))
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
+                + resource.getFilename() + "\"")
+            .body(resource);
     }
 }
 

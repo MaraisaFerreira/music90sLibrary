@@ -1,12 +1,17 @@
 package com.study.mf.services;
 
 import com.study.mf.config.StorageConfig;
+import com.study.mf.exceptions.CustomBadRequestException;
+import com.study.mf.exceptions.CustomNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -39,6 +44,22 @@ public class StorageService {
             return fileName;
         } catch (IOException e) {
             throw new RuntimeException("Copy Failed...");
+        }
+    }
+
+    public Resource downloadFile(String fileName){
+        Path filePath = storageFolderPath.resolve(fileName);
+
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new CustomNotFoundException("This file was not found...");
+            }
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException(ex.getMessage());
         }
     }
 }
