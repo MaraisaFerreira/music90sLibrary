@@ -27,8 +27,8 @@ public class StorageController {
     public ResponseEntity<StorageResponseDTO> uploadFile(
         @RequestParam(name = "file") MultipartFile file
     ) {
-        if (file == null) {
-            throw new RuntimeException("File cannot be null...");
+        if (file.isEmpty()) {
+            throw new RuntimeException("You don't send any file to upload...");
         }
 
         String fileName = service.uploadFile(file);
