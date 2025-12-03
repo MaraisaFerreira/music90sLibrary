@@ -1,9 +1,8 @@
 package com.study.mf.controllers;
 
 import com.study.mf.data.dto.MusicDTO;
-import com.study.mf.model.Music;
+import com.study.mf.docs.MusicControllerDocs;
 import com.study.mf.services.MusicService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/musics")
-public class MusicController {
+public class MusicController implements MusicControllerDocs {
 
     private final MusicService service;
 
@@ -33,6 +32,7 @@ public class MusicController {
             MediaType.APPLICATION_YAML_VALUE
         }
     )
+    @Override
     public ResponseEntity<PagedModel<EntityModel<MusicDTO>>> findAll(
         @RequestParam(name = "page", defaultValue = "0") Integer page,
         @RequestParam(name = "size", defaultValue = "10") Integer size,
@@ -72,6 +72,7 @@ public class MusicController {
             MediaType.APPLICATION_YAML_VALUE
         }
     )
+    @Override
     public ResponseEntity<MusicDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
     }
@@ -88,6 +89,7 @@ public class MusicController {
             MediaType.APPLICATION_YAML_VALUE
         }
     )
+    @Override
     public ResponseEntity<MusicDTO> create(@RequestBody MusicDTO music) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(service.create(music));
@@ -106,6 +108,7 @@ public class MusicController {
             MediaType.APPLICATION_YAML_VALUE
         }
     )
+    @Override
     public ResponseEntity<MusicDTO> updated(
         @PathVariable Long id,
         @RequestBody MusicDTO musicDTO
@@ -114,6 +117,7 @@ public class MusicController {
     }
 
     @DeleteMapping("/{id}")
+    @Override
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
