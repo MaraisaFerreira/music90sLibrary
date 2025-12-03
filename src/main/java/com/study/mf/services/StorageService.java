@@ -1,7 +1,6 @@
 package com.study.mf.services;
 
 import com.study.mf.config.StorageConfig;
-import com.study.mf.exceptions.CustomBadRequestException;
 import com.study.mf.exceptions.CustomNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class StorageService {
         }
     }
 
-    public Resource downloadFile(String fileName){
+    public Resource loadResourceFile(String fileName){
         Path filePath = storageFolderPath.resolve(fileName);
 
         try {
