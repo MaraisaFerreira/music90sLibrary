@@ -1,7 +1,7 @@
 package com.study.mf.services;
 
 import com.study.mf.controllers.MusicController;
-import com.study.mf.data.dto.MusicDTO;
+import com.study.mf.dto.MusicDTO;
 import com.study.mf.exceptions.CustomBadRequestException;
 import com.study.mf.exceptions.CustomNotFoundException;
 import com.study.mf.model.Music;
@@ -15,9 +15,6 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-import static com.study.mf.mappers.ObjectsMapper.parseListObject;
 import static com.study.mf.mappers.ObjectsMapper.parseObject;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;

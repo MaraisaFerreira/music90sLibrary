@@ -1,6 +1,6 @@
 package com.study.mf.controllers;
 
-import com.study.mf.data.dto.StorageResponseDTO;
+import com.study.mf.dto.StorageResponseDTO;
 import com.study.mf.exceptions.CustomBadRequestException;
 import com.study.mf.services.StorageService;
 import jakarta.servlet.http.HttpServletRequest;

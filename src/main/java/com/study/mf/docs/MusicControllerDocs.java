@@ -1,9 +1,9 @@
 package com.study.mf.docs;
 
-import com.study.mf.data.dto.MusicDTO;
+import com.study.mf.dto.MusicDTO;
+import com.study.mf.dto.wrapper.MusicPagedModelWrapper;
 import com.study.mf.exceptions.MusicExceptionResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,7 +21,7 @@ public interface MusicControllerDocs {
         responses = {
             @ApiResponse(description = "Success", responseCode = "200", content = {
                 @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    array = @ArraySchema(schema = @Schema(implementation = MusicDTO.class)))
+                    schema = @Schema(implementation = MusicPagedModelWrapper.class))
             }),
             @ApiResponse(description = "Internal Server Error", responseCode = "500", content = {
                 @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MusicExceptionResponseDto.class)),

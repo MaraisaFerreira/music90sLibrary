@@ -1,6 +1,6 @@
 package com.study.mf.controllers;
 
-import com.study.mf.data.dto.MusicDTO;
+import com.study.mf.dto.MusicDTO;
 import com.study.mf.docs.MusicControllerDocs;
 import com.study.mf.services.MusicService;
 import org.springframework.data.domain.PageRequest;
